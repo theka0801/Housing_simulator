@@ -1,277 +1,592 @@
-
-<h2 class="sr-only">부동산 매매 자금흐름 시뮬레이터 v6 — 동거인 신용대출 포함 종합 분석</h2>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부동산 매매 자금흐름 시뮬레이터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
-.sw{padding:1rem 0 3rem;font-size:14px;color:var(--color-text-primary);}
-.sec{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
-.sec.ext{border:1.5px solid #7C6AE8;}
-.sec-title{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);margin:0 0 12px;}
-.sec-title-lg{font-size:13px;font-weight:600;color:var(--color-text-primary);margin:0 0 12px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);}
-.ext-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.ext-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:#EDE9FD;color:#5B47D6;}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:6px;}
-.fitem{display:flex;flex-direction:column;gap:4px;}
-.fitem label{font-size:12px;color:var(--color-text-secondary);}
-.fitem input,.fitem select{height:34px;font-size:13px;padding:0 8px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-primary);width:100%;}
-.fitem input:focus,.fitem select:focus{outline:none;border-color:#7C6AE8;}
-.stock-row{display:flex;gap:8px;}
-.stock-row input{flex:1;min-width:0;}
-.stock-row select{width:90px;flex-shrink:0;}
-.hint{font-size:11px;color:var(--color-text-tertiary);margin:6px 0 0;line-height:1.5;}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem;}
-.mc{background:var(--color-background-secondary);border-radius:8px;padding:.75rem 1rem;}
-.mc.ext-mc{background:#F5F3FF;}
-.mc .ml{font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px;}
-.mc .mv{font-size:16px;font-weight:500;}
-.mc .ms{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;}
-.rrow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;}
-.rrow:last-child{border-bottom:none;}
-.rk{color:var(--color-text-secondary);}
-.rv{font-weight:500;}
-.sbar{border-radius:8px;padding:.65rem 1rem;font-size:13px;font-weight:500;text-align:center;margin-bottom:1.25rem;}
-.ok{background:#EAF3DE;color:#3B6D11;}
-.warn{background:#FAEEDA;color:#854F0B;}
-.ng{background:#FCEBEB;color:#A32D2D;}
-.ext-ok{background:#EDE9FD;color:#5B47D6;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start;}
-@media(max-width:560px){.two-col,.three-col{grid-template-columns:1fr;}}
-.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:12px;color:var(--color-text-secondary);}
-.ld{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle;}
-.cf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;}
-.cf-row:last-child{border-bottom:none;}
-.cf-in{color:#3B6D11;font-weight:500;}
-.cf-out{color:#A32D2D;font-weight:500;}
-.cf-ext{color:#5B47D6;font-weight:500;}
-.repay-block{background:var(--color-background-secondary);border-radius:8px;padding:.75rem 1rem;}
-.repay-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
-.repay-key{color:var(--color-text-secondary);}
-.repay-val{font-weight:500;}
-.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;margin-left:5px;vertical-align:middle;}
-.tag-blue{background:#E6F1FB;color:#185FA5;}
-.tag-amber{background:#FAEEDA;color:#854F0B;}
-.tag-green{background:#EAF3DE;color:#3B6D11;}
-.tag-red{background:#FCEBEB;color:#A32D2D;}
-.tag-purple{background:#EDE9FD;color:#5B47D6;}
-.repay-desc{font-size:11px;color:var(--color-text-tertiary);margin-top:8px;line-height:1.6;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary);}
-.chart-wrap{position:relative;width:100%;}
-.divider{border:none;border-top:2px solid var(--color-border-tertiary);margin:2rem 0 1.5rem;}
-.divider-label{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-align:center;margin:-1.15rem 0 1.5rem;display:inline-block;padding:0 12px;position:relative;left:50%;transform:translateX(-50%);}
-.policy-card{border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:.75rem 1rem;margin-bottom:10px;}
-.dsr-meter{height:8px;border-radius:4px;background:var(--color-background-secondary);overflow:hidden;margin:6px 0;}
-.dsr-fill{height:100%;border-radius:4px;transition:width .3s;}
-.scenario-col{background:var(--color-background-secondary);border-radius:8px;padding:.75rem 1rem;}
-.scenario-col .sh{font-size:12px;font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary);}
-.stage-card{border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:.75rem 1rem;margin-bottom:8px;}
-.stage-title{font-size:12px;font-weight:500;margin-bottom:6px;color:var(--color-text-secondary);}
-.decision-box{border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;border:0.5px solid var(--color-border-tertiary);}
-.risk-item{display:flex;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;align-items:flex-start;}
-.risk-item:last-child{border-bottom:none;}
-.risk-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
-.risk-text{flex:1;line-height:1.5;}
-.risk-grade{font-size:11px;padding:2px 8px;border-radius:4px;flex-shrink:0;}
-.fund-bar{height:16px;border-radius:4px;overflow:hidden;display:flex;margin:8px 0;}
-.fund-seg{height:100%;transition:width .3s;}
-.cf-tab{display:flex;gap:6px;margin-bottom:10px;}
-.cf-tab button{flex:1;padding:6px;font-size:12px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;}
-.cf-tab button.active{background:#5B47D6;color:#fff;border-color:#5B47D6;font-weight:500;}
-.cf-panel{display:none;}
-.cf-panel.show{display:block;}
+  :root {
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --border: #E2E5EA;
+    --border-light: #EBEEF2;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --green: #16A34A;
+    --green-bg: #DCFCE7;
+    --green-light: #F0FDF4;
+    --red: #DC2626;
+    --red-bg: #FEE2E2;
+    --red-light: #FFF1F1;
+    --amber: #D97706;
+    --amber-bg: #FEF3C7;
+    --blue: #1D6DB5;
+    --blue-bg: #EFF6FF;
+    --purple: #6D28D9;
+    --purple-bg: #EDE9FE;
+    --purple-light: #F5F3FF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow: 0 4px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 5px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .page-header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .page-header .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+
+  .layout {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card.ext { border: 2px solid #8B5CF6; }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+  }
+  .card-title-md {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  /* ── INPUT GRID ── */
+  .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .field input, .field select {
+    height: 36px;
+    font-size: 13px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #FAFAFA;
+    color: var(--text-primary);
+    width: 100%;
+    font-family: inherit;
+    transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: #fff;
+  }
+  .stock-pair { display: flex; gap: 6px; }
+  .stock-pair input { flex: 1; min-width: 0; }
+  .stock-pair select { width: 88px; flex-shrink: 0; }
+  .hint { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.6; }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: start; }
+  .grid-2-auto { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── SUMMARY METRIC CARDS ── */
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .metric-card.ext { background: var(--purple-light); border-color: #C4B5FD; }
+  .metric-card .m-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; font-weight: 500; }
+  .metric-card .m-val { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1.1; }
+  .metric-card .m-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+  /* ── STATUS BARS ── */
+  .status-bar {
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+  .status-ok { background: var(--green-bg); color: var(--green); border-color: #BBF7D0; }
+  .status-warn { background: var(--amber-bg); color: var(--amber); border-color: #FDE68A; }
+  .status-ng { background: var(--red-bg); color: var(--red); border-color: #FECACA; }
+  .status-ext { background: var(--purple-bg); color: var(--purple); border-color: #C4B5FD; }
+
+  /* ── TABLE ROWS ── */
+  .t-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .t-row:last-child { border-bottom: none; }
+  .t-key { color: var(--text-secondary); }
+  .t-val { font-weight: 600; color: var(--text-primary); }
+  .t-val.green { color: var(--green); }
+  .t-val.red { color: var(--red); }
+  .t-val.blue { color: var(--blue); }
+  .t-val.purple { color: var(--purple); }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); }
+  .tag-green { background: var(--green-bg); color: var(--green); }
+  .tag-red { background: var(--red-bg); color: var(--red); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple); }
+
+  /* ── FUND BAR ── */
+  .fund-bar-track {
+    height: 14px;
+    border-radius: 7px;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    margin: 10px 0 8px;
+  }
+  .fund-bar-seg { height: 100%; transition: width .3s ease; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+  /* ── CF TABS ── */
+  .tab-row { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab-btn {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: #FAFAFA;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .tab-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+  .cf-panel { display: none; }
+  .cf-panel.show { display: block; }
+
+  /* ── DECISION BOX ── */
+  .decision-box {
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    border: 1.5px solid transparent;
+  }
+  .decision-verdict { font-size: 20px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.02em; }
+  .check-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  .check-item {
+    text-align: center;
+    font-size: 11px;
+    padding: 8px 6px;
+    border-radius: var(--radius-xs);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .check-pass { background: var(--green-bg); color: var(--green); }
+  .check-fail { background: var(--red-bg); color: var(--red); }
+  .cond-item {
+    display: flex;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    font-size: 13px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .cond-item:last-child { border-bottom: none; }
+  .cond-bullet { font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── DSR METER ── */
+  .dsr-track { height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; margin: 8px 0; }
+  .dsr-fill { height: 100%; border-radius: 4px; transition: width .3s; }
+
+  /* ── RISK ITEMS ── */
+  .risk-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; align-items: flex-start; }
+  .risk-item:last-child { border-bottom: none; }
+  .risk-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .risk-body { flex: 1; line-height: 1.5; }
+  .risk-body strong { font-size: 13px; font-weight: 600; display: block; margin-bottom: 2px; }
+  .risk-body span { font-size: 12px; color: var(--text-secondary); }
+  .risk-grade {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 1px;
+  }
+
+  /* ── POLICY CARD ── */
+  .policy-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .policy-card.best { border: 2px solid var(--blue); }
+  .policy-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  /* ── SCENARIO COLS ── */
+  .scenario-card { background: #FAFAFA; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .scenario-head { font-size: 12px; font-weight: 700; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); }
+
+  /* ── STAGE CARD ── */
+  .stage-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 10px; }
+  .stage-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+
+  /* ── REPAY BLOCK ── */
+  .repay-block { background: #FAFAFA; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .repay-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .repay-key { color: var(--text-secondary); }
+  .repay-val { font-weight: 600; }
+  .repay-desc { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-light); line-height: 1.6; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .section-divider hr { flex: 1; border: none; border-top: 1.5px solid var(--border); }
+  .section-divider span { font-size: 11px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .06em; white-space: nowrap; }
+
+  /* ── EXT HEADER ── */
+  .ext-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .ext-header .card-title { margin-bottom: 0; }
+
+  /* ── INLINE HIGHLIGHT ── */
+  .hl-box {
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* ── CHART WRAP ── */
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-2-auto, .grid-3 { grid-template-columns: 1fr; }
+    .check-grid { grid-template-columns: repeat(2, 1fr); }
+    .layout { padding: 16px 12px 40px; gap: 14px; }
+  }
+  @media (max-width: 480px) {
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
 </style>
+</head>
+<body>
 
-<div class="sw">
+<header class="page-header">
+  <h1>부동산 매매 자금흐름 시뮬레이터</h1>
+  <span class="badge">무주택 · 생애최초</span>
+</header>
 
-<!-- ① 유동자산 -->
-<div class="sec">
-  <p class="sec-title">① 유동 자산</p>
-  <div class="fgrid">
-    <div class="fitem"><label>현금 (만원)</label><input type="number" id="cash" value="10000" min="0" step="100"></div>
-    <div class="fitem">
-      <label>주식·펀드 (만원) + 현금화율</label>
-      <div class="stock-row">
-        <input type="number" id="stock" value="5000" min="0" step="100">
-        <select id="liq"><option value="100">100%</option><option value="90">90%</option><option value="80">80%</option><option value="70" selected>70%</option><option value="60">60%</option><option value="50">50%</option></select>
+<div class="layout">
+
+  <!-- ══ INPUT SECTION ══ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;">
+
+    <!-- ① 유동자산 -->
+    <div class="card">
+      <div class="card-title">① 유동 자산</div>
+      <div class="input-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label>현금 (만원)</label><input type="number" id="cash" value="10000" min="0" step="100"></div>
+        <div class="field">
+          <label>주식·펀드 + 현금화율</label>
+          <div class="stock-pair">
+            <input type="number" id="stock" value="5000" min="0" step="100">
+            <select id="liq">
+              <option value="100">100%</option><option value="90">90%</option>
+              <option value="80">80%</option><option value="70" selected>70%</option>
+              <option value="60">60%</option><option value="50">50%</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>기타 자산 (만원)</label><input type="number" id="other" value="2000" min="0" step="100"></div>
       </div>
     </div>
-    <div class="fitem"><label>기타 자산 (만원)</label><input type="number" id="other" value="2000" min="0" step="100"></div>
-  </div>
-</div>
 
-<!-- ② 대출 설정 -->
-<div class="sec">
-  <p class="sec-title">② 본인 대출 설정 (주담대)</p>
-  <div class="fgrid">
-    <div class="fitem"><label>연 소득 (만원)</label><input type="number" id="income" value="6000" min="1000" step="100"></div>
-    <div class="fitem"><label>DSR 한도 (%)</label><input type="number" id="dsr" value="40" min="10" max="60" step="5"></div>
-    <div class="fitem"><label>대출 금리 (%/년)</label><input type="number" id="rate" value="4.5" min="1" max="12" step="0.1"></div>
-    <div class="fitem"><label>대출 기간 (년)</label>
-      <select id="term"><option value="10">10년</option><option value="15">15년</option><option value="20">20년</option><option value="25">25년</option><option value="30" selected>30년</option><option value="40">40년</option></select>
+    <!-- ② 대출 설정 -->
+    <div class="card">
+      <div class="card-title">② 본인 대출 설정 (주담대)</div>
+      <div class="input-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label>연 소득 (만원)</label><input type="number" id="income" value="6000" min="1000" step="100"></div>
+        <div class="field"><label>DSR 한도 (%)</label><input type="number" id="dsr" value="40" min="10" max="60" step="5"></div>
+        <div class="field"><label>대출 금리 (%/년)</label><input type="number" id="rate" value="4.5" min="1" max="12" step="0.1"></div>
+        <div class="field"><label>대출 기간</label>
+          <select id="term">
+            <option value="10">10년</option><option value="15">15년</option><option value="20">20년</option>
+            <option value="25">25년</option><option value="30" selected>30년</option><option value="40">40년</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;"><label>상환 방식</label>
+        <select id="repay-type">
+          <option value="equal-payment">원리금균등상환</option>
+          <option value="equal-principal">원금균등상환</option>
+          <option value="bullet">만기일시상환</option>
+          <option value="grace-3">거치 후 원리금균등 (3년)</option>
+          <option value="grace-5">거치 후 원리금균등 (5년)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ③ 매매가 -->
+    <div class="card">
+      <div class="card-title">③ 주택 매매가 · 부대비용</div>
+      <div class="input-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label>주택 매매가 (만원)</label><input type="number" id="price" value="50000" min="5000" step="1000"></div>
+        <div class="field"><label>LTV 한도 (%)</label><input type="number" id="ltv" value="60" min="10" max="80" step="5"></div>
+        <div class="field"><label>생애최초 취득세</label>
+          <select id="firsthome"><option value="1">감면 적용</option><option value="0">미적용</option></select>
+        </div>
+        <div class="field"><label>취득세 납부</label>
+          <select id="acq-months"><option value="1">일시납</option><option value="12">12개월</option><option value="24">24개월</option><option value="36">36개월</option></select>
+        </div>
+        <div class="field"><label>인테리어 (만원)</label><input type="number" id="interior" value="2000" min="0" step="100"></div>
+        <div class="field"><label>이사비용 (만원)</label><input type="number" id="moving" value="100" min="0" step="10"></div>
+      </div>
     </div>
   </div>
-  <div class="fgrid" style="margin-top:8px;">
-    <div class="fitem" style="grid-column:1/-1;"><label>상환 방식</label>
-      <select id="repay-type">
-        <option value="equal-payment">원리금균등상환 — 매달 동일한 금액 납부</option>
-        <option value="equal-principal">원금균등상환 — 원금 고정 + 이자 감소</option>
-        <option value="bullet">만기일시상환 — 매달 이자만, 만기에 원금</option>
-        <option value="grace-3">거치 후 원리금균등 (3년 거치)</option>
-        <option value="grace-5">거치 후 원리금균등 (5년 거치)</option>
-      </select>
+
+  <!-- ④ 동거인 자금 + ⑤ 생활비 -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;">
+    <div class="card ext">
+      <div class="ext-header">
+        <div class="card-title">④ 동거인 외부 자금</div>
+        <span class="tag tag-purple">DSR 제외 · 현금흐름 반영</span>
+      </div>
+      <div class="input-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="field"><label>신용대출 금액 (만원)</label><input type="number" id="co-amount" value="3000" min="0" step="100"></div>
+        <div class="field"><label>금리 (%/년)</label><input type="number" id="co-rate" value="5.5" min="1" max="20" step="0.1"></div>
+        <div class="field"><label>대출 기간</label>
+          <select id="co-term"><option value="1">1년</option><option value="2">2년</option><option value="3">3년</option><option value="5" selected>5년</option><option value="7">7년</option><option value="10">10년</option></select>
+        </div>
+        <div class="field"><label>상환 방식</label>
+          <select id="co-repay"><option value="equal-payment">원리금균등</option><option value="bullet">만기일시상환</option></select>
+        </div>
+        <div class="field"><label>자금 제공 방식</label>
+          <select id="co-type"><option value="free">무상 지원(증여)</option><option value="borrow" selected>차용(상환 필요)</option><option value="share">공동 부담</option></select>
+        </div>
+        <div class="field"><label>사용자 부담 비율</label>
+          <select id="co-share"><option value="0">0%</option><option value="25">25%</option><option value="50" selected>50%</option><option value="75">75%</option><option value="100">100%</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⑤ 월 생활비</div>
+      <div class="field" style="margin-bottom:10px;"><label>최소 생활비 (만원/월)</label><input type="number" id="living" value="180" min="50" step="10"></div>
+      <div class="field" style="margin-bottom:10px;"><label>고정지출 (보험·통신·교통)</label><input type="number" id="fixed-exp" value="30" min="0" step="5"></div>
+      <div class="field"><label>변동지출 예비비 (만원/월)</label><input type="number" id="var-exp" value="20" min="0" step="5"></div>
     </div>
   </div>
-</div>
 
-<!-- ③ 매매가 -->
-<div class="sec">
-  <p class="sec-title">③ 주택 매매가 및 부대비용</p>
-  <div class="fgrid">
-    <div class="fitem"><label>주택 매매가 (만원)</label><input type="number" id="price" value="50000" min="5000" step="1000"></div>
-    <div class="fitem"><label>LTV 한도 (%)</label><input type="number" id="ltv" value="60" min="10" max="80" step="5"></div>
-    <div class="fitem"><label>생애최초 취득세 감면</label>
-      <select id="firsthome"><option value="1">적용 (200만원 감면)</option><option value="0">미적용</option></select>
-    </div>
-    <div class="fitem"><label>취득세 납부 방식</label>
-      <select id="acq-months"><option value="1">일시납</option><option value="12">12개월 할부</option><option value="24">24개월 할부</option><option value="36">36개월 할부</option></select>
-    </div>
-    <div class="fitem"><label>인테리어 예산 (만원)</label><input type="number" id="interior" value="2000" min="0" step="100"></div>
-    <div class="fitem"><label>이사비용 (만원)</label><input type="number" id="moving" value="100" min="0" step="10"></div>
+  <!-- ══ STATUS BARS ══ -->
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div id="status-without" class="status-bar status-warn">계산 중...</div>
+    <div id="status-with" class="status-bar status-ext">계산 중...</div>
   </div>
-</div>
 
-<!-- ④ 동거인 자금 -->
-<div class="sec ext">
-  <div class="ext-header">
-    <p class="sec-title" style="margin:0;">④ 동거인 외부 자금</p>
-    <span class="ext-badge">DSR 제외 · 현금흐름 반영</span>
-  </div>
-  <div class="fgrid">
-    <div class="fitem"><label>신용대출 금액 (만원)</label><input type="number" id="co-amount" value="3000" min="0" step="100"></div>
-    <div class="fitem"><label>금리 (%/년)</label><input type="number" id="co-rate" value="5.5" min="1" max="20" step="0.1"></div>
-    <div class="fitem"><label>대출 기간 (년)</label>
-      <select id="co-term"><option value="1">1년</option><option value="2">2년</option><option value="3">3년</option><option value="5" selected>5년</option><option value="7">7년</option><option value="10">10년</option></select>
-    </div>
-    <div class="fitem"><label>상환 방식</label>
-      <select id="co-repay"><option value="equal-payment">원리금균등상환</option><option value="bullet">만기일시상환</option></select>
+  <!-- ══ SUMMARY METRIC CARDS (4) ══ -->
+  <div class="grid-4" id="summary-cards"></div>
+
+  <!-- ══ FUND STRUCTURE ══ -->
+  <div class="card">
+    <div class="card-title">전체 자금 구조</div>
+    <div class="fund-bar-track" id="fund-bar"></div>
+    <div class="legend" id="fund-leg" style="margin-bottom:16px;"></div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px;font-weight:500;">동거인 자금 제외</div>
+        <div id="fund-without"></div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--purple);margin-bottom:8px;font-weight:500;">동거인 자금 포함</div>
+        <div id="fund-with"></div>
+      </div>
     </div>
   </div>
-  <div class="fgrid" style="margin-top:8px;">
-    <div class="fitem"><label>자금 제공 방식</label>
-      <select id="co-type"><option value="free">무상 지원 (증여)</option><option value="borrow" selected>차용 (상환 필요)</option><option value="share">공동 부담</option></select>
+
+  <!-- ══ DETAIL ANALYSIS 2-COL ══ -->
+  <div class="grid-2">
+    <!-- 대출 상환 분석 -->
+    <div class="card">
+      <div class="card-title">본인 대출 상환 분석</div>
+      <div id="repay-summary"></div>
     </div>
-    <div class="fitem"><label>사용자 부담 비율 (%)</label>
-      <select id="co-share"><option value="0">0% (동거인 전액)</option><option value="25">25%</option><option value="50" selected>50%</option><option value="75">75%</option><option value="100">100% (사용자 전액)</option></select>
+    <!-- 자금 구성 원그래프 -->
+    <div class="card">
+      <div class="card-title">자금 구성 비율</div>
+      <div class="legend" id="pie-leg" style="margin-bottom:10px;"></div>
+      <div class="chart-wrap" style="height:210px;"><canvas id="pieChart"></canvas></div>
     </div>
   </div>
-  <p class="hint">* 동거인 대출은 DSR 산정에서 제외되나, 실제 현금흐름 및 리스크 분석에 반영됩니다.</p>
-</div>
 
-<!-- ⑤ 생활비 -->
-<div class="sec">
-  <p class="sec-title">⑤ 월 생활비</p>
-  <div class="fgrid">
-    <div class="fitem"><label>최소 생활비 (만원/월)</label><input type="number" id="living" value="180" min="50" step="10"></div>
-    <div class="fitem"><label>고정지출 — 보험·통신·교통</label><input type="number" id="fixed-exp" value="30" min="0" step="5"></div>
-    <div class="fitem"><label>변동지출 예비비 (만원/월)</label><input type="number" id="var-exp" value="20" min="0" step="5"></div>
+  <!-- 부대비용 -->
+  <div class="card">
+    <div class="card-title">부대비용 내역</div>
+    <div class="grid-2">
+      <div id="cost-detail-l"></div>
+      <div id="cost-detail-r"></div>
+    </div>
   </div>
-</div>
 
-<!-- 상태 바 + 요약 -->
-<div id="status-without" class="sbar warn" style="margin-bottom:6px;">계산 중...</div>
-<div id="status-with" class="sbar ext-ok" style="margin-bottom:1.25rem;">계산 중...</div>
-
-<!-- 자금 구조 -->
-<div class="sec">
-  <p class="sec-title">전체 자금 구조</p>
-  <div class="mgrid" id="fund-cards"></div>
-  <div class="fund-bar" id="fund-bar"></div>
-  <div class="leg" id="fund-leg"></div>
-  <div class="two-col" style="margin-top:12px;">
-    <div><p style="font-size:12px;color:var(--color-text-tertiary);margin:0 0 6px;">동거인 자금 제외</p><div id="fund-without"></div></div>
-    <div><p style="font-size:12px;color:#5B47D6;margin:0 0 6px;">동거인 자금 포함</p><div id="fund-with"></div></div>
+  <!-- ══ MONTHLY CASHFLOW ══ -->
+  <div class="card">
+    <div class="card-title">월 현금흐름 분석</div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showCFTab('tab-solo',this)">동거인 제외</button>
+      <button class="tab-btn" onclick="showCFTab('tab-shared',this)">동거인 공동부담</button>
+      <button class="tab-btn" onclick="showCFTab('tab-full',this)">동거인 전액부담</button>
+    </div>
+    <div style="max-width:440px;">
+      <div id="tab-solo" class="cf-panel show"></div>
+      <div id="tab-shared" class="cf-panel"></div>
+      <div id="tab-full" class="cf-panel"></div>
+    </div>
   </div>
-</div>
 
-<!-- 대출 상환 + 원그래프 -->
-<div class="two-col" style="margin-bottom:1.25rem;">
-  <div class="sec" style="margin-bottom:0;"><p class="sec-title">본인 대출 상환 분석</p><div id="repay-summary"></div></div>
-  <div class="sec" style="margin-bottom:0;">
-    <p class="sec-title">자금 구성 비율</p>
-    <div class="leg" id="pie-leg"></div>
-    <div class="chart-wrap" style="height:200px;"><canvas id="pieChart"></canvas></div>
+  <!-- ══ DECISION BOX ══ -->
+  <div id="decision-top"></div>
+
+  <!-- divider -->
+  <div class="section-divider"><hr><span>추가 분석</span><hr></div>
+
+  <!-- ══ POLICY LOANS ══ -->
+  <div class="card">
+    <div class="card-title-md">1. 정책대출 비교 분석</div>
+    <div id="policy-section"></div>
   </div>
-</div>
 
-<!-- 부대비용 -->
-<div class="sec"><p class="sec-title">부대비용 내역</p><div id="cost-detail"></div></div>
-
-<!-- 월 현금흐름 -->
-<div class="sec">
-  <p class="sec-title">월 현금흐름 분석</p>
-  <div class="cf-tab">
-    <button class="active" onclick="showTab('tab-solo')">동거인 제외</button>
-    <button onclick="showTab('tab-shared')">동거인 상환 공동부담</button>
-    <button onclick="showTab('tab-full')">동거인 전액부담</button>
+  <!-- ══ DSR ANALYSIS ══ -->
+  <div class="card">
+    <div class="card-title-md">2. DSR 정밀 분석</div>
+    <div id="dsr-section"></div>
   </div>
-  <div style="max-width:440px;">
-    <div id="tab-solo" class="cf-panel show"></div>
-    <div id="tab-shared" class="cf-panel"></div>
-    <div id="tab-full" class="cf-panel"></div>
+
+  <!-- ══ TIMING ══ -->
+  <div class="card">
+    <div class="card-title-md">3. 자금 집행 타이밍 시뮬레이션</div>
+    <div id="timing-section"></div>
   </div>
-</div>
 
-<hr class="divider"><div class="divider-label">추가 분석</div>
+  <!-- ══ LIVING CASHFLOW ══ -->
+  <div class="card">
+    <div class="card-title-md">4. 실질 생활비 반영 현금흐름</div>
+    <div id="living-section"></div>
+  </div>
 
-<!-- 최종 의사결정 -->
-<div id="decision-top"></div>
+  <!-- ══ LIQUIDITY ══ -->
+  <div class="card">
+    <div class="card-title-md">5. 유동성 생존력 분석</div>
+    <div id="liquidity-section"></div>
+  </div>
 
-<!-- 동거인 자금 리스크 -->
-<div class="sec">
-  <p class="sec-title-lg">동거인 외부 자금 리스크 분석</p>
-  <div id="co-risk-section"></div>
-</div>
+  <!-- ══ CO RISK ══ -->
+  <div class="card">
+    <div class="card-title-md">동거인 외부 자금 리스크 분석</div>
+    <div id="co-risk-section"></div>
+  </div>
 
-<!-- 구조 건전성 -->
-<div class="sec">
-  <p class="sec-title-lg">자금 구조 건전성 평가</p>
-  <div id="health-section"></div>
-</div>
+  <!-- ══ HEALTH ══ -->
+  <div class="card">
+    <div class="card-title-md">자금 구조 건전성 평가</div>
+    <div id="health-section"></div>
+  </div>
 
-<!-- 정책대출 -->
-<div class="sec"><p class="sec-title-lg">1. 정책대출 비교 분석</p><div id="policy-section"></div></div>
+  <!-- ══ SCENARIO ══ -->
+  <div class="card">
+    <div class="card-title-md">6. 시나리오 분석</div>
+    <div class="grid-3" id="scenario-section"></div>
+  </div>
 
-<!-- DSR -->
-<div class="sec"><p class="sec-title-lg">2. DSR 정밀 분석</p><div id="dsr-section"></div></div>
+</div><!-- end .layout -->
 
-<!-- 타이밍 -->
-<div class="sec"><p class="sec-title-lg">3. 자금 집행 타이밍 시뮬레이션</p><div id="timing-section"></div></div>
-
-<!-- 생활비 -->
-<div class="sec">
-  <p class="sec-title-lg">4. 실질 생활비 반영 현금흐름</p>
-  <div id="living-section"></div>
-</div>
-
-<!-- 유동성 -->
-<div class="sec"><p class="sec-title-lg">5. 유동성 생존력 분석</p><div id="liquidity-section"></div></div>
-
-<!-- 시나리오 -->
-<div class="sec"><p class="sec-title-lg">6. 시나리오 분석</p><div id="scenario-section"></div></div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const fmt=v=>{v=Math.round(v);if(v===0)return'0만원';const neg=v<0;v=Math.abs(v);return(neg?'-':'')+(v>=10000?(v/10000).toFixed(v%10000===0?0:1)+'억원':v.toLocaleString()+'만원');};
 let pieChart;
 
-function showTab(id){
+function showCFTab(id,btn){
   document.querySelectorAll('.cf-panel').forEach(p=>p.classList.remove('show'));
-  document.querySelectorAll('.cf-tab button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   $(id).classList.add('show');
-  const idx={'tab-solo':0,'tab-shared':1,'tab-full':2}[id];
-  document.querySelectorAll('.cf-tab button')[idx].classList.add('active');
+  btn.classList.add('active');
 }
 
 function calcIncomeTax(income){
@@ -287,12 +602,11 @@ const calcAcqTax=p=>Math.round(p*(p<6000?0.01:p<9000?0.02:0.03));
 const calcAgentFee=p=>p<5000?Math.round(Math.min(p*0.006,250)):p<20000?Math.round(Math.min(p*0.005,800)):Math.round(Math.min(p*0.009,900));
 const calcBond=p=>Math.round(p*0.013*0.15);
 
-function mPay(loanMan,r,n){
+function mpayEq(loanMan,r,n){
   const P=loanMan*10000,mr=r/100/12,mn=n*12;
   if(mr===0)return P/mn;
   return P*mr*Math.pow(1+mr,mn)/(Math.pow(1+mr,mn)-1);
 }
-function mPayBullet(loanMan,r){return Math.round(loanMan*r/100/12);}
 function maxLoanDSR(income,dsrPct,r,n){
   const ma=income*dsrPct/100,mr=r/100/12,mn=n*12;
   if(mr===0)return Math.round(ma*n);
@@ -302,39 +616,41 @@ function getRI(loan,rate,term,type){
   const P=loan*10000,r=rate/100/12,n=term*12;
   if(type==='equal-payment'){
     const mp=r===0?P/n:P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
-    return{mF:Math.round(mp/10000),mL:Math.round(mp/10000),gM:null,dsrB:Math.round(mp*12/10000),tI:Math.round((mp*n-P)/10000),label:'원리금균등',tags:['월납 고정'],desc:'매달 동일한 금액을 납부합니다.'};
+    return{mF:Math.round(mp/10000),mL:Math.round(mp/10000),gM:null,dsrB:Math.round(mp*12/10000),tI:Math.round((mp*n-P)/10000),label:'원리금균등',desc:'매달 동일한 금액(원금+이자)을 납부합니다.'};
   }
   if(type==='equal-principal'){
     const mp0=P/n,fi=P*r,li=mp0*r,ti=r===0?0:mp0*r*(n*(n+1)/2);
-    return{mF:Math.round((mp0+fi)/10000),mL:Math.round((mp0+li)/10000),gM:null,dsrB:Math.round((mp0+fi)*12/10000),tI:Math.round(ti/10000),label:'원금균등',tags:['초기 부담 큼','매달 감소'],desc:'매달 원금 고정, 이자 점감.'};
+    return{mF:Math.round((mp0+fi)/10000),mL:Math.round((mp0+li)/10000),gM:null,dsrB:Math.round((mp0+fi)*12/10000),tI:Math.round(ti/10000),label:'원금균등',desc:'매달 원금 고정, 이자 점감. 초기 부담이 큽니다.'};
   }
   if(type==='bullet'){
     const mi=Math.round(P*r/10000);
-    return{mF:mi,mL:mi,gM:mi,dsrB:Math.round(loan/term+mi*12),tI:mi*n,label:'만기일시',tags:['이자만 납부'],desc:'만기에 원금 전액 일시 상환.'};
+    return{mF:mi,mL:mi,gM:mi,dsrB:Math.round(loan/term+mi*12),tI:mi*n,label:'만기일시',desc:'만기에 원금 전액 일시 상환합니다.'};
   }
   const gy=type==='grace-3'?3:5,gm=gy*12,rm=n-gm,gMi=Math.round(P*r/10000);
   const mp2=r===0?P/rm:P*r*Math.pow(1+r,rm)/(Math.pow(1+r,rm)-1);
-  return{mF:gMi,mL:Math.round(mp2/10000),gM:gMi,dsrB:Math.round(mp2*12/10000),tI:Math.round(gMi*gm+(mp2*rm-P)/10000),label:`거치 후 원리금균등(${gy}년)`,tags:[`${gy}년 이자만`],desc:`${gy}년 이자만 후 원리금균등 전환.`};
+  return{mF:gMi,mL:Math.round(mp2/10000),gM:gMi,dsrB:Math.round(mp2*12/10000),tI:Math.round(gMi*gm+(mp2*rm-P)/10000),label:`거치 후 원리금균등(${gy}년)`,desc:`${gy}년 이자만 후 원리금균등 전환.`};
 }
 
 function cfBlock(netInc,mLoan,acqM,coM,coLabel,coColor,livingV,fixedV,varV){
-  const totalOut=mLoan+acqM+coM+livingV+fixedV+varV;
-  const net=netInc-totalOut;
-  const nc=net>=50?'#3B6D11':net>=0?'#854F0B':'#A32D2D';
-  const nb=net>=50?'#EAF3DE':net>=0?'#FAEEDA':'#FCEBEB';
-  const grade=net>=50?'생활 가능':net>=0?'압박':'위험';
-  return`<div class="rrow"><span class="rk">실수령액</span><span class="cf-in">+${fmt(netInc)}</span></div>
-    <div class="rrow"><span class="rk">주담대 원리금</span><span class="cf-out">-${fmt(mLoan)}</span></div>
-    ${acqM>0?`<div class="rrow"><span class="rk">취득세 할부</span><span class="cf-out">-${fmt(acqM)}</span></div>`:''}
-    ${coM>0?`<div class="rrow"><span class="rk">${coLabel}</span><span style="color:${coColor};font-weight:500;">-${fmt(coM)}</span></div>`:''}
-    <div class="rrow"><span class="rk">최소 생활비</span><span class="cf-out">-${fmt(livingV)}</span></div>
-    <div class="rrow"><span class="rk">고정지출</span><span class="cf-out">-${fmt(fixedV)}</span></div>
-    <div class="rrow"><span class="rk">변동지출 예비비</span><span class="cf-out">-${fmt(varV)}</span></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0;margin-top:6px;border-top:0.5px solid var(--color-border-secondary);">
-      <span style="font-size:13px;font-weight:500;">월 잉여 현금</span>
-      <span style="font-size:16px;font-weight:500;color:${nc};">${(net>=0?'+':'')+fmt(net)}</span>
+  const totalExp=mLoan+acqM+coM+livingV+fixedV+varV;
+  const net=netInc-totalExp;
+  const nc=net>=50?'var(--green)':net>=0?'var(--amber)':'var(--red)';
+  const nbg=net>=50?'var(--green-bg)':net>=0?'var(--amber-bg)':'var(--red-bg)';
+  const grade=net>=50?'생활 가능':net>=0?'압박 수준':'위험 — 월 적자';
+  return `
+    <div class="t-row"><span class="t-key">월 세전 소득</span><span class="t-val green">+${fmt(netInc+(Math.round(calcIncomeTax(netInc*12)/12)+0))}</span></div>
+    <div class="t-row"><span class="t-key">실수령액</span><span class="t-val green">+${fmt(netInc)}</span></div>
+    <div class="t-row"><span class="t-key">주담대 원리금</span><span class="t-val red">-${fmt(mLoan)}</span></div>
+    ${acqM>0?`<div class="t-row"><span class="t-key">취득세 할부</span><span class="t-val red">-${fmt(acqM)}</span></div>`:''}
+    ${coM>0?`<div class="t-row"><span class="t-key">${coLabel}</span><span class="t-val" style="color:${coColor};">-${fmt(coM)}</span></div>`:''}
+    <div class="t-row"><span class="t-key">최소 생활비</span><span class="t-val red">-${fmt(livingV)}</span></div>
+    <div class="t-row"><span class="t-key">고정지출</span><span class="t-val red">-${fmt(fixedV)}</span></div>
+    <div class="t-row"><span class="t-key">변동지출 예비비</span><span class="t-val red">-${fmt(varV)}</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:8px;border-top:1px solid var(--border-light);">
+      <span style="font-size:13px;font-weight:600;">월 잉여 현금</span>
+      <span style="font-size:18px;font-weight:700;color:${nc};">${(net>=0?'+':'')+fmt(net)}</span>
     </div>
-    <div style="margin-top:6px;padding:7px 12px;border-radius:8px;background:${nb};font-size:12px;color:${nc};font-weight:500;">${grade} — ${net>=50?`월 ${fmt(net)} 저축 여력`:net>=0?`잉여 ${fmt(net)}, 매우 빠듯한 수준`:`월 ${fmt(-net)} 적자`}</div>`;
+    <div class="hl-box" style="background:${nbg};color:${nc};">${grade}${net>=50?' — 월 '+fmt(net)+' 저축 여력':net>=0?' — 매우 빠듯':' — '+fmt(-net)+' 적자'}</div>`;
 }
 
 function calc(){
@@ -360,319 +676,288 @@ function calc(){
   const totalNeeded=price+totalExtra;
   const acqMonthly=acqMonths>1?Math.round(acqTax/acqMonths):0;
 
-  // without co-resident
   const totalFundW=availAsset+actualLoan;
   const shortageW=Math.max(0,totalNeeded-totalFundW);
   const surplusW=Math.max(0,totalFundW-totalNeeded);
-
-  // with co-resident
   const totalFundC=availAsset+actualLoan+coAmount;
   const shortageC=Math.max(0,totalNeeded-totalFundC);
   const surplusC=Math.max(0,totalFundC-totalNeeded);
 
-  // co monthly payment
   let coMonthly=0;
-  if(coRepay==='equal-payment') coMonthly=Math.round(mPay(coAmount,coRate,coTerm)/10000);
-  else coMonthly=mPayBullet(coAmount,coRate);
+  if(coRepay==='equal-payment') coMonthly=Math.round(mpayEq(coAmount,coRate,coTerm)/10000);
+  else coMonthly=Math.round(coAmount*coRate/100/12);
   const coUserBurden=coType==='free'?0:coType==='borrow'?coMonthly:Math.round(coMonthly*coShare);
-  const coPartnerBurden=coMonthly-coUserBurden;
 
-  // status bars
+  // status
   const sw=$('status-without');
-  if(shortageW===0){sw.className='sbar ok';sw.textContent=`동거인 자금 없이 실행 가능 — 여유 ${fmt(surplusW)}`;}
-  else if(shortageW<=price*0.1){sw.className='sbar warn';sw.textContent=`동거인 자금 없이 ${fmt(shortageW)} 부족`;}
-  else{sw.className='sbar ng';sw.textContent=`동거인 자금 없이 ${fmt(shortageW)} 부족 — 실행 어려움`;}
-
+  if(shortageW===0){sw.className='status-bar status-ok';sw.textContent=`동거인 자금 없이 실행 가능 — 여유 ${fmt(surplusW)}`;}
+  else if(shortageW<=price*0.1){sw.className='status-bar status-warn';sw.textContent=`동거인 자금 없이 ${fmt(shortageW)} 부족`;}
+  else{sw.className='status-bar status-ng';sw.textContent=`동거인 자금 없이 ${fmt(shortageW)} 부족 — 실행 어려움`;}
   const sc=$('status-with');
-  if(coAmount===0){sc.className='sbar ext-ok';sc.textContent='동거인 자금 미입력';}
-  else if(shortageC===0){sc.className='sbar ext-ok';sc.textContent=`동거인 자금 포함 시 실행 가능 — 여유 ${fmt(surplusC)}`;}
-  else if(shortageC<=price*0.1){sc.className='sbar warn';sc.textContent=`동거인 자금 포함해도 ${fmt(shortageC)} 부족`;}
-  else{sc.className='sbar ng';sc.textContent=`동거인 자금 포함해도 ${fmt(shortageC)} 부족`;}
+  if(coAmount===0){sc.className='status-bar status-ext';sc.textContent='동거인 자금 미입력';}
+  else if(shortageC===0){sc.className='status-bar status-ext';sc.textContent=`동거인 자금 포함 시 실행 가능 — 여유 ${fmt(surplusC)}`;}
+  else if(shortageC<=price*0.1){sc.className='status-bar status-warn';sc.textContent=`동거인 자금 포함해도 ${fmt(shortageC)} 부족`;}
+  else{sc.className='status-bar status-ng';sc.textContent=`동거인 자금 포함해도 ${fmt(shortageC)} 부족`;}
 
-  // fund cards
-  $('fund-cards').innerHTML=`
-    <div class="mc"><div class="ml">본인 자산</div><div class="mv">${fmt(availAsset)}</div><div class="ms">현금화 적용</div></div>
-    <div class="mc"><div class="ml">본인 주담대</div><div class="mv">${fmt(actualLoan)}</div><div class="ms">DSR·LTV 기준</div></div>
-    <div class="mc ext-mc"><div class="ml">동거인 외부자금</div><div class="mv" style="color:#5B47D6;">${fmt(coAmount)}</div><div class="ms">DSR 제외</div></div>
-    <div class="mc"><div class="ml">부대비용</div><div class="mv">${fmt(totalExtra)}</div></div>
-    <div class="mc"><div class="ml">총 필요자금</div><div class="mv">${fmt(totalNeeded)}</div></div>
-    <div class="mc ${shortageC===0?'':''}"><div class="ml">${shortageC>0?'최종 부족':'최종 여유'}</div><div class="mv" style="color:${shortageC>0?'#A32D2D':'#3B6D11'}">${shortageC>0?fmt(shortageC):fmt(surplusC)}</div></div>
+  // summary cards
+  $('summary-cards').innerHTML=`
+    <div class="metric-card"><div class="m-label">본인 가용 자산</div><div class="m-val">${fmt(availAsset)}</div><div class="m-sub">현금화 적용 후</div></div>
+    <div class="metric-card"><div class="m-label">실행 대출</div><div class="m-val">${fmt(actualLoan)}</div><div class="m-sub">DSR·LTV 중 낮은 값</div></div>
+    <div class="metric-card ext"><div class="m-label">동거인 외부 자금</div><div class="m-val" style="color:var(--purple);">${fmt(coAmount)}</div><div class="m-sub">DSR 제외</div></div>
+    <div class="metric-card"><div class="m-label">총 필요 자금</div><div class="m-val">${fmt(totalNeeded)}</div><div class="m-sub">매매가 + 부대비용</div></div>
   `;
 
   // fund bar
-  const barTotal=Math.max(totalNeeded,totalFundC)||1;
-  const aW=Math.round(availAsset/barTotal*100),lW=Math.round(actualLoan/barTotal*100),cW=Math.round(coAmount/barTotal*100),sW=Math.max(0,100-aW-lW-cW);
-  $('fund-bar').innerHTML=`<div class="fund-seg" style="width:${aW}%;background:#1D9E75;" title="본인 자산"></div><div class="fund-seg" style="width:${lW}%;background:#378ADD;" title="주담대"></div><div class="fund-seg" style="width:${cW}%;background:#7C6AE8;" title="동거인"></div><div class="fund-seg" style="width:${sW}%;background:#E24B4A;" title="부족"></div>`;
-  $('fund-leg').innerHTML=`<span><span class="ld" style="background:#1D9E75;"></span>본인 자산 ${aW}%</span><span><span class="ld" style="background:#378ADD;"></span>주담대 ${lW}%</span><span><span class="ld" style="background:#7C6AE8;"></span>동거인 ${cW}%</span>${sW>0?`<span><span class="ld" style="background:#E24B4A;"></span>부족 ${sW}%</span>`:''}`;
+  const bt=Math.max(totalNeeded,totalFundC)||1;
+  const aW=Math.round(availAsset/bt*100),lW=Math.round(actualLoan/bt*100),cW=Math.round(coAmount/bt*100);
+  const sW=Math.max(0,100-aW-lW-cW);
+  $('fund-bar').innerHTML=`<div class="fund-bar-seg" style="width:${aW}%;background:#16A34A;"></div><div class="fund-bar-seg" style="width:${lW}%;background:#1D6DB5;"></div><div class="fund-bar-seg" style="width:${cW}%;background:#6D28D9;"></div>${sW>0?`<div class="fund-bar-seg" style="width:${sW}%;background:#DC2626;"></div>`:''}`;
+  $('fund-leg').innerHTML=`<span><span class="legend-dot" style="background:#16A34A;"></span>본인 자산 ${aW}%</span><span><span class="legend-dot" style="background:#1D6DB5;"></span>주담대 ${lW}%</span><span><span class="legend-dot" style="background:#6D28D9;"></span>동거인 ${cW}%</span>${sW>0?`<span><span class="legend-dot" style="background:#DC2626;"></span>부족 ${sW}%</span>`:''}`;
+  $('fund-without').innerHTML=`<div class="t-row"><span class="t-key">총 조달(본인)</span><span class="t-val">${fmt(totalFundW)}</span></div><div class="t-row"><span class="t-key">총 필요</span><span class="t-val">${fmt(totalNeeded)}</span></div><div class="t-row"><span class="t-key">${shortageW>0?'부족':'여유'}</span><span class="t-val ${shortageW>0?'red':'green'}">${shortageW>0?'-'+fmt(shortageW):'+'+fmt(surplusW)}</span></div>`;
+  $('fund-with').innerHTML=`<div class="t-row"><span class="t-key">총 조달(포함)</span><span class="t-val purple">${fmt(totalFundC)}</span></div><div class="t-row"><span class="t-key">총 필요</span><span class="t-val">${fmt(totalNeeded)}</span></div><div class="t-row"><span class="t-key">${shortageC>0?'부족':'여유'}</span><span class="t-val ${shortageC>0?'red':'green'}">${shortageC>0?'-'+fmt(shortageC):'+'+fmt(surplusC)}</span></div><div class="t-row"><span class="t-key">동거인 월 상환</span><span class="t-val purple">${fmt(coMonthly)}/월</span></div><div class="t-row"><span class="t-key">사용자 부담</span><span class="t-val">${fmt(coUserBurden)}/월</span></div>`;
 
-  $('fund-without').innerHTML=`
-    <div class="rrow"><span class="rk">총 조달 (본인)</span><span class="rv">${fmt(totalFundW)}</span></div>
-    <div class="rrow"><span class="rk">총 필요</span><span class="rv">${fmt(totalNeeded)}</span></div>
-    <div class="rrow"><span class="rk">${shortageW>0?'부족':'여유'}</span><span class="rv" style="color:${shortageW>0?'#A32D2D':'#3B6D11'}">${shortageW>0?'-'+fmt(shortageW):'+'+fmt(surplusW)}</span></div>`;
-  $('fund-with').innerHTML=`
-    <div class="rrow"><span class="rk">총 조달 (동거인 포함)</span><span class="rv" style="color:#5B47D6;">${fmt(totalFundC)}</span></div>
-    <div class="rrow"><span class="rk">총 필요</span><span class="rv">${fmt(totalNeeded)}</span></div>
-    <div class="rrow"><span class="rk">${shortageC>0?'부족':'여유'}</span><span class="rv" style="color:${shortageC>0?'#A32D2D':'#3B6D11'}">${shortageC>0?'-'+fmt(shortageC):'+'+fmt(surplusC)}</span></div>
-    <div class="rrow"><span class="rk">동거인 월 상환</span><span class="rv" style="color:#5B47D6;">${fmt(coMonthly)}/월</span></div>
-    <div class="rrow"><span class="rk">사용자 부담</span><span class="rv">${fmt(coUserBurden)}/월</span></div>`;
-
-  // repay summary
+  // repay
   $('repay-summary').innerHTML=`<div class="repay-block">
-    <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:6px;">${ri.label} ${ri.tags.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>
+    <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:8px;font-weight:600;">${ri.label}</div>
     <div class="repay-row"><span class="repay-key">대출 원금</span><span class="repay-val">${fmt(actualLoan)}</span></div>
     <div class="repay-row"><span class="repay-key">기간 / 금리</span><span class="repay-val">${term}년 / 연 ${rate.toFixed(1)}%</span></div>
-    <div class="repay-row"><span class="repay-key">첫 달 납부액</span><span class="repay-val" style="color:#185FA5;">${fmt(ri.mF)}/월</span></div>
-    ${ri.mF!==ri.mL?`<div class="repay-row"><span class="repay-key">거치 종료 후</span><span class="repay-val">${fmt(ri.mL)}/월</span></div>`:''}
-    <div class="repay-row"><span class="repay-key">총 납부 이자</span><span class="repay-val" style="color:#993C1D;">${fmt(ri.tI)}</span></div>
+    <div class="repay-row"><span class="repay-key">첫 달 납부액</span><span class="repay-val" style="color:var(--blue);">${fmt(ri.mF)}/월</span></div>
+    ${ri.mF!==ri.mL?`<div class="repay-row"><span class="repay-key">${ri.gM!==null?'거치 종료 후':'마지막 달'}</span><span class="repay-val">${fmt(ri.mL)}/월</span></div>`:''}
+    <div class="repay-row"><span class="repay-key">연간 원리금(DSR)</span><span class="repay-val">${fmt(ri.dsrB)}/년</span></div>
+    <div class="repay-row"><span class="repay-key">총 납부 이자</span><span class="repay-val" style="color:var(--red);">${fmt(ri.tI)}</span></div>
     <div class="repay-desc">${ri.desc}</div>
   </div>`;
 
-  // pie chart
-  const pieD=[availAsset,actualLoan,coAmount,shortageC];
-  const pieL=['본인 자산','주담대','동거인 자금','부족 자금'];
-  const pieC=['#1D9E75','#378ADD','#7C6AE8','#E24B4A'];
-  const tot=pieD.reduce((a,b)=>a+b,0)||1;
-  $('pie-leg').innerHTML=pieL.map((l,i)=>pieD[i]>0?`<span style="display:flex;align-items:center;gap:3px;"><span class="ld" style="background:${pieC[i]};"></span>${l} ${Math.round(pieD[i]/tot*100)}%</span>`:'').join('');
+  // pie
+  const pd=[availAsset,actualLoan,coAmount,shortageC];
+  const pl=['본인 자산','주담대','동거인','부족'];
+  const pc=['#16A34A','#1D6DB5','#6D28D9','#DC2626'];
+  const tot=pd.reduce((a,b)=>a+b,0)||1;
+  $('pie-leg').innerHTML=pl.map((l,i)=>pd[i]>0?`<span><span class="legend-dot" style="background:${pc[i]};"></span>${l} ${Math.round(pd[i]/tot*100)}%</span>`:'').join('');
   if(pieChart)pieChart.destroy();
-  pieChart=new Chart($('pieChart'),{type:'doughnut',data:{labels:pieL,datasets:[{data:pieD,backgroundColor:pieC,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.raw)}`}}}}});
+  pieChart=new Chart($('pieChart'),{type:'doughnut',data:{labels:pl,datasets:[{data:pd,backgroundColor:pc,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.raw)}`}}}}});
 
-  // cost detail
-  $('cost-detail').innerHTML=`
-    <div class="rrow"><span class="rk">취득세${firstHome?' (감면 후)':''}</span><span class="rv">${fmt(acqTax)}</span></div>
-    <div class="rrow"><span class="rk">중개보수</span><span class="rv">${fmt(af)}</span></div>
-    <div class="rrow"><span class="rk">법무사비용</span><span class="rv">${fmt(lf)}</span></div>
-    <div class="rrow"><span class="rk">등록면허세</span><span class="rv">${fmt(regFee)}</span></div>
-    <div class="rrow"><span class="rk">인지세</span><span class="rv">${fmt(stampTax)}</span></div>
-    <div class="rrow"><span class="rk">국민주택채권 할인손</span><span class="rv">${fmt(bond)}</span></div>
-    <div class="rrow"><span class="rk">근저당 설정비용</span><span class="rv">${fmt(loanSetup)}</span></div>
-    <div class="rrow"><span class="rk">인테리어</span><span class="rv">${fmt(interior)}</span></div>
-    <div class="rrow"><span class="rk">이사비용</span><span class="rv">${fmt(moving)}</span></div>
-    <div class="rrow"><span class="rk" style="font-weight:500;">합계</span><span class="rv">${fmt(totalExtra)}</span></div>
-    ${acqMonths>1?`<div class="rrow"><span class="rk">└ 취득세 월 할부</span><span class="rv" style="color:#854F0B;">${fmt(acqMonthly)}/월</span></div>`:''}`;
+  // cost
+  $('cost-detail-l').innerHTML=`
+    <div class="t-row"><span class="t-key">취득세${firstHome?' (감면 후)':''}</span><span class="t-val">${fmt(acqTax)}</span></div>
+    <div class="t-row"><span class="t-key">중개보수</span><span class="t-val">${fmt(af)}</span></div>
+    <div class="t-row"><span class="t-key">법무사비용</span><span class="t-val">${fmt(lf)}</span></div>
+    <div class="t-row"><span class="t-key">등록면허세</span><span class="t-val">${fmt(regFee)}</span></div>`;
+  $('cost-detail-r').innerHTML=`
+    <div class="t-row"><span class="t-key">인지세</span><span class="t-val">${fmt(stampTax)}</span></div>
+    <div class="t-row"><span class="t-key">국민주택채권 할인손</span><span class="t-val">${fmt(bond)}</span></div>
+    <div class="t-row"><span class="t-key">근저당 설정비용</span><span class="t-val">${fmt(loanSetup)}</span></div>
+    <div class="t-row"><span class="t-key">인테리어 + 이사</span><span class="t-val">${fmt(interior+moving)}</span></div>
+    <div class="t-row"><span class="t-key" style="font-weight:600;">합계</span><span class="t-val" style="color:var(--blue);">${fmt(totalExtra)}</span></div>
+    ${acqMonths>1?`<div class="t-row"><span class="t-key">└ 취득세 월 할부</span><span class="t-val" style="color:var(--amber);">${fmt(acqMonthly)}/월</span></div>`:''}`;
 
   // cf tabs
   const incM=Math.round(income/12),itM=Math.round(calcIncomeTax(income)/12);
   const hM=Math.round(calcHealth(income)/12),pM=Math.round(calcPension(income)/12),eM=Math.round(calcEmploy(income)/12);
   const netInc=incM-itM-hM-pM-eM;
-  $('tab-solo').innerHTML=cfBlock(netInc,ri.mF,acqMonthly,0,'',''          ,living,fixedExp,varExp);
-  $('tab-shared').innerHTML=cfBlock(netInc,ri.mF,acqMonthly,coUserBurden,'동거인 대출 분담('+Math.round(coShare*100)+'%)','#5B47D6',living,fixedExp,varExp);
+  $('tab-solo').innerHTML=cfBlock(netInc,ri.mF,acqMonthly,0,'','',living,fixedExp,varExp);
+  $('tab-shared').innerHTML=cfBlock(netInc,ri.mF,acqMonthly,coUserBurden,`동거인 분담(${Math.round(coShare*100)}%)`,`var(--purple)`,living,fixedExp,varExp);
   $('tab-full').innerHTML=cfBlock(netInc,ri.mF,acqMonthly,0,'','',living,fixedExp,varExp)
-    +`<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:#EDE9FD;font-size:12px;color:#5B47D6;">동거인 전액 부담 시 사용자 추가 지출 없음 — 동거인 월 상환 ${fmt(coMonthly)}</div>`;
+    +`<div class="hl-box" style="background:var(--purple-bg);color:var(--purple);">동거인 전액 부담 시 사용자 추가 지출 없음 — 동거인 월 상환 ${fmt(coMonthly)}</div>`;
 
-  // co-resident risk
-  const coRatio=coAmount>0?(coAmount/(availAsset+actualLoan+coAmount)*100):0;
-  const isBullet=coRepay==='bullet';
-  const isFree=coType==='free';
-  const isLongTerm=coTerm>=5;
-  let riskScore=0;
-  if(coRatio>30)riskScore+=2; else if(coRatio>15)riskScore+=1;
-  if(isBullet)riskScore+=2;
-  if(!isFree)riskScore+=1;
-  if(coAmount>0)riskScore+=1;
-  const riskGrade=riskScore<=2?'낮음':riskScore<=4?'보통':'높음';
-  const riskColor=riskScore<=2?'#3B6D11':riskScore<=4?'#854F0B':'#A32D2D';
-  const riskBg=riskScore<=2?'#EAF3DE':riskScore<=4?'#FAEEDA':'#FCEBEB';
+  // co-risk
+  const coRatio=coAmount>0?Math.round(coAmount/(availAsset+actualLoan+coAmount)*100):0;
+  const isBullet=coRepay==='bullet',isFree=coType==='free';
+  let rsc=0;
+  if(coRatio>30)rsc+=2;else if(coRatio>15)rsc+=1;
+  if(isBullet)rsc+=2;
+  if(!isFree)rsc+=1;
+  if(coAmount>0)rsc+=1;
+  const rg=rsc<=2?'낮음':rsc<=4?'보통':'높음';
+  const rc=rsc<=2?'var(--green)':rsc<=4?'var(--amber)':'var(--red)';
+  const rbg=rsc<=2?'var(--green-bg)':rsc<=4?'var(--amber-bg)':'var(--red-bg)';
   const risks=[
-    {icon:'⚠️',title:'명의 불일치 리스크',desc:`주담대 명의자(본인)와 자금 제공자(동거인)가 다릅니다. 증여세 이슈 발생 가능 — ${isFree?'무상 증여로 증여세 신고 필요(연 5천만원 초과 시)':'차용증 작성 및 이자 지급 증빙 필요'}`,grade:isFree&&coAmount>5000?'높음':'보통',gc:isFree&&coAmount>5000?'#A32D2D':'#854F0B'},
-    {icon:'💔',title:'관계 변화 리스크',desc:'동거 관계 해소 시 자금 반환 요구 가능. 사전 서면 합의(금전 소비대차 계약 또는 공동투자 약정) 없으면 법적 분쟁 위험.',grade:'높음',gc:'#A32D2D'},
-    {icon:'🔄',title:'상환 불능 전가 리스크',desc:`동거인이 상환 불능 상태가 되면 ${coType==='share'?`사용자 부담 ${Math.round(coShare*100)}% → 100%로 상승 가능`:coType==='borrow'?'사용자가 실질 상환 부담자로 전환 가능':'무상 지원이므로 상환 전가 위험 낮음'}`,grade:coType==='free'?'낮음':coRatio>20?'높음':'보통',gc:coType==='free'?'#3B6D11':coRatio>20?'#A32D2D':'#854F0B'},
-    {icon:'💣',title:'만기일시상환 만기 리스크',desc:isBullet?`만기 ${coTerm}년 후 원금 ${fmt(coAmount)} 일시 상환 필요. 미상환 시 연체·신용 하락 → 주담대 연계 위험.`:'원리금균등 방식 — 만기일시상환 리스크 없음.',grade:isBullet?'높음':'낮음',gc:isBullet?'#A32D2D':'#3B6D11'},
+    {icon:'⚠️',t:'명의 불일치 리스크',d:`명의자(본인)와 자금 제공자(동거인)가 다릅니다. ${isFree?'무상 증여 시 증여세 신고 필요(연 5천만원 초과)':'차용증 작성 및 이자 지급 증빙 필요'}`,g:isFree&&coAmount>5000?'높음':'보통',gc:isFree&&coAmount>5000?'var(--red)':'var(--amber)'},
+    {icon:'💔',t:'관계 변화 리스크',d:'동거 관계 해소 시 자금 반환 요구 가능. 서면 약정 없으면 법적 분쟁 위험.',g:'높음',gc:'var(--red)'},
+    {icon:'🔄',t:'상환 불능 전가 리스크',d:`동거인 상환 불능 시 ${coType==='free'?'무상 지원이므로 전가 위험 낮음':coRatio>20?'사용자 부담 전가 위험 높음':'부담 전환 가능성 존재'}`,g:coType==='free'?'낮음':coRatio>20?'높음':'보통',gc:coType==='free'?'var(--green)':coRatio>20?'var(--red)':'var(--amber)'},
+    {icon:'💣',t:'만기일시상환 만기 리스크',d:isBullet?`만기 ${coTerm}년 후 원금 ${fmt(coAmount)} 일시 상환 필요. 미상환 시 연체 위험.`:'원리금균등 방식 — 만기 리스크 없음.',g:isBullet?'높음':'낮음',gc:isBullet?'var(--red)':'var(--green)'},
   ];
   $('co-risk-section').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-radius:8px;background:${riskBg};margin-bottom:12px;">
-      <span style="font-size:13px;font-weight:500;color:${riskColor};">종합 리스크 등급</span>
-      <span style="font-size:20px;font-weight:600;color:${riskColor};">${riskGrade}</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-radius:var(--radius-sm);background:${rbg};margin-bottom:14px;border:1px solid transparent;">
+      <span style="font-size:13px;font-weight:600;color:${rc};">종합 리스크 등급</span>
+      <span style="font-size:22px;font-weight:700;color:${rc};">${rg}</span>
     </div>
-    ${risks.map(r=>`<div class="risk-item"><span class="risk-icon">${r.icon}</span><div class="risk-text"><strong style="font-size:13px;">${r.title}</strong><br><span style="font-size:12px;color:var(--color-text-secondary);">${r.desc}</span></div><span class="risk-grade" style="background:${r.gc==='#3B6D11'?'#EAF3DE':r.gc==='#854F0B'?'#FAEEDA':'#FCEBEB'};color:${r.gc};">${r.grade}</span></div>`).join('')}
-    ${coAmount>0?`<p class="hint" style="margin-top:10px;">* 차용 방식 선택 시 차용증 작성(이자율 명시), 계좌이체 증빙 보관을 권장합니다.</p>`:''}`;
+    ${risks.map(r=>`<div class="risk-item"><span class="risk-icon">${r.icon}</span><div class="risk-body"><strong>${r.t}</strong><span>${r.d}</span></div><span class="risk-grade" style="background:${r.gc==='var(--green)'?'var(--green-bg)':r.gc==='var(--amber)'?'var(--amber-bg)':'var(--red-bg)'};color:${r.gc};">${r.g}</span></div>`).join('')}`;
 
-  // health section
-  const selfEquityRatio=Math.round(availAsset/totalFundC*100);
-  const loanDepend=Math.round(actualLoan/totalFundC*100);
-  const extRatio=Math.round(coAmount/totalFundC*100);
-  const hGrade=extRatio<=10&&selfEquityRatio>=40?'건전':extRatio<=25&&selfEquityRatio>=25?'주의':'위험';
-  const hColor=hGrade==='건전'?'#3B6D11':hGrade==='주의'?'#854F0B':'#A32D2D';
-  const hBg=hGrade==='건전'?'#EAF3DE':hGrade==='주의'?'#FAEEDA':'#FCEBEB';
+  // health
+  const ser=Math.round(availAsset/totalFundC*100);
+  const ld=Math.round(actualLoan/totalFundC*100);
+  const er=Math.round(coAmount/totalFundC*100);
+  const hg=er<=10&&ser>=40?'건전':er<=25&&ser>=25?'주의':'위험';
+  const hc=hg==='건전'?'var(--green)':hg==='주의'?'var(--amber)':'var(--red)';
+  const hb=hg==='건전'?'var(--green-bg)':hg==='주의'?'var(--amber-bg)':'var(--red-bg)';
   $('health-section').innerHTML=`
-    <div class="mgrid" style="margin-bottom:10px;">
-      <div class="mc"><div class="ml">자기자본 비율</div><div class="mv" style="color:${selfEquityRatio>=40?'#3B6D11':selfEquityRatio>=25?'#854F0B':'#A32D2D'}">${selfEquityRatio}%</div><div class="ms">권장 40% 이상</div></div>
-      <div class="mc"><div class="ml">주담대 의존도</div><div class="mv" style="color:${loanDepend<=50?'#3B6D11':loanDepend<=65?'#854F0B':'#A32D2D'}">${loanDepend}%</div></div>
-      <div class="mc"><div class="ml">외부 자금 비중</div><div class="mv" style="color:${extRatio<=10?'#3B6D11':extRatio<=25?'#854F0B':'#A32D2D'}">${extRatio}%</div><div class="ms">권장 10% 이하</div></div>
+    <div class="grid-3" style="margin-bottom:12px;">
+      <div class="metric-card"><div class="m-label">자기자본 비율</div><div class="m-val" style="color:${ser>=40?'var(--green)':ser>=25?'var(--amber)':'var(--red)'};">${ser}%</div><div class="m-sub">권장 40% 이상</div></div>
+      <div class="metric-card"><div class="m-label">주담대 의존도</div><div class="m-val" style="color:${ld<=50?'var(--green)':ld<=65?'var(--amber)':'var(--red)'};">${ld}%</div></div>
+      <div class="metric-card"><div class="m-label">외부 자금 비중</div><div class="m-val" style="color:${er<=10?'var(--green)':er<=25?'var(--amber)':'var(--red)'};">${er}%</div><div class="m-sub">권장 10% 이하</div></div>
     </div>
-    <div style="padding:10px 14px;border-radius:8px;background:${hBg};font-size:13px;color:${hColor};font-weight:500;">
-      ${hGrade} — ${hGrade==='건전'?'자기자본 비율 충분, 외부 자금 의존도 낮음':hGrade==='주의'?`외부 자금 비중 ${extRatio}% — 관계 리스크 대비 필요`:`외부 자금 비중 ${extRatio}% 과다. 자기자본 강화 권장`}
-    </div>`;
+    <div class="hl-box" style="background:${hb};color:${hc};">${hg} — ${hg==='건전'?'자기자본 충분, 외부자금 의존도 낮음':hg==='주의'?`외부 자금 ${er}% — 관계 리스크 대비 필요`:`외부 자금 ${er}% 과다 — 자기자본 강화 권장`}</div>`;
 
-  // policy loans
+  // policy
   const policies=[
     {name:'디딤돌 대출',rate:3.0,maxPrice:50000,maxLoan:25000,ltvMax:80,incomeMax:7000},
     {name:'보금자리론',rate:3.65,maxPrice:60000,maxLoan:36000,ltvMax:70,incomeMax:10000},
     {name:'특례보금자리론',rate:4.15,maxPrice:90000,maxLoan:50000,ltvMax:70,incomeMax:Infinity},
   ];
-  let pHTML='',bestP=null,bestSav=0;
+  let pH='',bP=null,bS=0;
   policies.forEach(p=>{
     const ok=price<=p.maxPrice&&income<=p.incomeMax;
     const pL=Math.min(p.maxLoan,Math.round(price*p.ltvMax/100),maxLoanDSR(income,dsr,p.rate,term));
     const pRI=getRI(pL,p.rate,term,'equal-payment');
     const ms=ri.mF-pRI.mF;
-    if(ok&&ms>bestSav){bestSav=ms;bestP={...p,pL,pRI,ms};}
-    pHTML+=`<div class="policy-card${ok&&ms>0?' best':''}">
-      <div style="font-size:13px;font-weight:500;margin-bottom:6px;">${p.name} ${ok?'<span class="tag tag-green">적용 가능</span>':'<span class="tag tag-red">적용 불가</span>'} ${ok&&ms>0?'<span class="tag tag-purple">추천</span>':''}</div>
-      <div class="rrow"><span class="rk">금리</span><span class="rv">${ok?`연 ${p.rate.toFixed(2)}%`:'-'}</span></div>
-      <div class="rrow"><span class="rk">최대 대출</span><span class="rv">${ok?fmt(pL):'-'}</span></div>
-      <div class="rrow"><span class="rk">LTV 완화</span><span class="rv">${p.ltvMax}%</span></div>
-      <div class="rrow"><span class="rk">월납 / 절감</span><span class="rv">${ok?fmt(pRI.mF)+'/월 '+(ms>0?`<span style="color:#3B6D11;">(-${fmt(ms)})</span>`:''):'- '}</span></div>
+    if(ok&&ms>bS){bS=ms;bP={...p,pL,pRI,ms};}
+    pH+=`<div class="policy-card${ok&&ms>0?' best':''}">
+      <div class="policy-name">${p.name} ${ok?'<span class="tag tag-green">적용 가능</span>':'<span class="tag tag-red">적용 불가</span>'} ${ok&&ms>0?'<span class="tag tag-blue">추천</span>':''}</div>
+      <div class="t-row"><span class="t-key">금리</span><span class="t-val">${ok?`연 ${p.rate.toFixed(2)}%`:'-'}</span></div>
+      <div class="t-row"><span class="t-key">최대 대출</span><span class="t-val">${ok?fmt(pL):'-'}</span></div>
+      <div class="t-row"><span class="t-key">LTV 완화</span><span class="t-val">${p.ltvMax}%</span></div>
+      <div class="t-row"><span class="t-key">월납 / 절감</span><span class="t-val">${ok?fmt(pRI.mF)+'/월'+(ms>0?` <span style="color:var(--green);">(-${fmt(ms)})</span>`:''):'-'}</span></div>
     </div>`;
   });
-  if(bestP){pHTML=`<div class="sbar ok" style="margin-bottom:12px;">최적: ${bestP.name} 적용 시 월 ${fmt(bestP.ms)} 절감</div>`+pHTML;}
-  else{pHTML=`<div class="sbar warn" style="margin-bottom:12px;">현 조건에서 유리한 정책대출 없음</div>`+pHTML;}
-  $('policy-section').innerHTML=pHTML;
+  if(bP)pH=`<div class="status-bar status-ok" style="margin-bottom:12px;">최적: ${bP.name} 적용 시 월 ${fmt(bP.ms)} 절감</div>`+pH;
+  else pH=`<div class="status-bar status-warn" style="margin-bottom:12px;">현 조건에서 유리한 정책대출 없음</div>`+pH;
+  $('policy-section').innerHTML=pH;
 
   // DSR
-  const stressRate=rate+1.5,stressLoan=maxLoanDSR(income,dsr,stressRate,term),safeLoan=maxLoanDSR(income,30,rate,term);
-  const aDSR=Math.round(ri.dsrB/income*100),sDSR=Math.round(getRI(actualLoan,stressRate,term,'equal-payment').dsrB/income*100);
+  const sr2=rate+1.5,stressLoan=maxLoanDSR(income,dsr,sr2,term),safeLoan=maxLoanDSR(income,30,rate,term);
+  const aDSR=Math.round(ri.dsrB/income*100),sDSR=Math.round(getRI(actualLoan,sr2,term,'equal-payment').dsrB/income*100);
   const dg=sDSR<=30?'안전':sDSR<=40?'주의':'위험';
-  const dc=sDSR<=30?'#3B6D11':sDSR<=40?'#854F0B':'#A32D2D';
-  const db=sDSR<=30?'#EAF3DE':sDSR<=40?'#FAEEDA':'#FCEBEB';
+  const dc=dg==='안전'?'var(--green)':dg==='주의'?'var(--amber)':'var(--red)';
+  const db=dg==='안전'?'var(--green-bg)':dg==='주의'?'var(--amber-bg)':'var(--red-bg)';
   $('dsr-section').innerHTML=`
-    <div class="mgrid" style="margin-bottom:10px;">
-      <div class="mc"><div class="ml">현재 DSR</div><div class="mv" style="color:#185FA5;">${aDSR}%</div></div>
-      <div class="mc"><div class="ml">스트레스 DSR (+1.5%)</div><div class="mv" style="color:${dc};">${sDSR}%</div></div>
-      <div class="mc"><div class="ml">위험 등급</div><div class="mv" style="color:${dc};">${dg}</div></div>
+    <div class="grid-3" style="margin-bottom:12px;">
+      <div class="metric-card"><div class="m-label">현재 DSR</div><div class="m-val" style="color:var(--blue);">${aDSR}%</div></div>
+      <div class="metric-card"><div class="m-label">스트레스 DSR (+1.5%)</div><div class="m-val" style="color:${dc};">${sDSR}%</div></div>
+      <div class="metric-card"><div class="m-label">위험 등급</div><div class="m-val" style="color:${dc};">${dg}</div></div>
     </div>
-    <div class="dsr-meter"><div class="dsr-fill" style="width:${Math.min(sDSR*1.5,100)}%;background:${dc==='#3B6D11'?'#1D9E75':dc==='#854F0B'?'#BA7517':'#E24B4A'};"></div></div>
-    <div class="rrow"><span class="rk">승인 가능 (DSR ${dsr}%)</span><span class="rv">${fmt(Math.min(dsrLoan,ltvLoan))}</span></div>
-    <div class="rrow"><span class="rk">스트레스 적용 승인 가능</span><span class="rv" style="color:#854F0B;">${fmt(Math.min(stressLoan,ltvLoan))}</span></div>
-    <div class="rrow"><span class="rk">권장 상한 (DSR 30%)</span><span class="rv" style="color:#3B6D11;">${fmt(Math.min(safeLoan,ltvLoan))}</span></div>
-    <div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:${db};font-size:12px;color:${dc};font-weight:500;">${dg==='안전'?'금리 1.5% 상승 시에도 DSR 30% 이내. 안정적입니다.':dg==='주의'?`금리 상승 시 DSR ${sDSR}%. 여유 자금 확보 권장.`:`금리 상승 시 DSR ${sDSR}% — 상환 부담 과중. 대출 축소 강력 권장.`}</div>`;
+    <div class="dsr-track"><div class="dsr-fill" style="width:${Math.min(sDSR*1.5,100)}%;background:${dg==='안전'?'#16A34A':dg==='주의'?'#D97706':'#DC2626'};"></div></div>
+    <p style="font-size:11px;color:var(--text-tertiary);margin:4px 0 12px;">스트레스 DSR ${sDSR}% — 기준선: 안전 ≤30% / 한도 ≤40%</p>
+    <div class="t-row"><span class="t-key">승인 가능 (DSR ${dsr}%)</span><span class="t-val">${fmt(Math.min(dsrLoan,ltvLoan))}</span></div>
+    <div class="t-row"><span class="t-key">스트레스 적용 승인 가능</span><span class="t-val" style="color:var(--amber);">${fmt(Math.min(stressLoan,ltvLoan))}</span></div>
+    <div class="t-row"><span class="t-key">권장 상한 (DSR 30%)</span><span class="t-val" style="color:var(--green);">${fmt(Math.min(safeLoan,ltvLoan))}</span></div>
+    <div class="hl-box" style="background:${db};color:${dc};margin-top:12px;">${dg==='안전'?'금리 1.5% 상승 시에도 DSR 30% 이내 — 안정':dg==='주의'?`금리 상승 시 DSR ${sDSR}% — 여유자금 확보 권장`:`금리 상승 시 DSR ${sDSR}% — 상환 부담 과중. 대출 축소 강력 권장`}</div>`;
 
   // timing
   const dep=Math.round(price*0.1),inter=Math.round(price*0.2),bal=price-dep-inter;
   const r1=availAsset-dep,r2=r1-inter,r3=r2-(bal-actualLoan)+coAmount;
-  const tStages=[{n:'계약금',pct:'10%',need:dep,rem:r1},{n:'중도금',pct:'20%',need:inter,rem:r2},{n:'잔금',pct:'70%',need:bal,rem:r3,note:`대출 ${fmt(actualLoan)} + 동거인 ${fmt(coAmount)} 실행`}];
-  $('timing-section').innerHTML=`<p class="hint" style="margin-bottom:10px;">계약금 10% / 중도금 20% / 잔금 70% 기준. 부대비용 잔금 단계 포함.</p>`
+  const tStages=[{n:'계약금',p:'10%',need:dep,rem:r1,note:''},
+    {n:'중도금',p:'20%',need:inter,rem:r2,note:''},
+    {n:'잔금',p:'70%',need:bal,rem:r3,note:`대출 ${fmt(actualLoan)} + 동거인 ${fmt(coAmount)} 실행`}];
+  $('timing-section').innerHTML=`<p class="hint" style="margin-bottom:12px;">계약금 10% / 중도금 20% / 잔금 70% 기준. 부대비용은 잔금 단계 포함.</p>`
     +tStages.map(s=>`<div class="stage-card">
-      <div class="stage-title">${s.n} <span style="color:var(--color-text-tertiary);">(${s.pct})</span> <span class="tag ${s.rem>=0?'tag-green':'tag-red'}">${s.rem>=0?'실행 가능':'실행 불가'}</span></div>
-      <div class="rrow"><span class="rk">필요 금액</span><span class="rv">${fmt(s.need)}</span></div>
-      ${s.note?`<div class="rrow"><span class="rk">자금 구성</span><span class="rv" style="font-size:12px;">${s.note}</span></div>`:''}
-      <div class="rrow"><span class="rk">납부 후 잔여</span><span class="rv" style="color:${s.rem>=0?'#3B6D11':'#A32D2D'}">${fmt(s.rem)}</span></div>
+      <div class="stage-name">${s.n} (${s.p}) <span class="tag ${s.rem>=0?'tag-green':'tag-red'}">${s.rem>=0?'실행 가능':'실행 불가'}</span></div>
+      <div class="t-row"><span class="t-key">필요 금액</span><span class="t-val">${fmt(s.need)}</span></div>
+      ${s.note?`<div class="t-row"><span class="t-key">자금 구성</span><span class="t-val" style="font-size:12px;">${s.note}</span></div>`:''}
+      <div class="t-row"><span class="t-key">납부 후 잔여</span><span class="t-val ${s.rem>=0?'green':'red'}">${fmt(s.rem)}</span></div>
     </div>`).join('')
-    +`<div style="padding:8px 12px;border-radius:8px;background:${r3>=0?'#EAF3DE':'#FCEBEB'};font-size:12px;color:${r3>=0?'#3B6D11':'#A32D2D'};font-weight:500;">전 단계 완료 후 잔여: ${fmt(r3)} ${r3<0?' — 자금 집행 불가':''}</div>`;
+    +`<div class="hl-box" style="background:${r3>=0?'var(--green-bg)':'var(--red-bg)'};color:${r3>=0?'var(--green)':'var(--red)'};">전 단계 완료 후 잔여 현금: ${fmt(r3)}${r3<0?' — 자금 집행 불가':''}</div>`;
 
   // living
-  const totalExpSolo=ri.mF+acqMonthly+living+fixedExp+varExp;
-  const totalExpShared=ri.mF+acqMonthly+coUserBurden+living+fixedExp+varExp;
-  const netSolo=netInc-totalExpSolo,netShared=netInc-totalExpShared;
-  const lc=netShared>=50?'#3B6D11':netShared>=0?'#854F0B':'#A32D2D';
-  const lb=netShared>=50?'#EAF3DE':netShared>=0?'#FAEEDA':'#FCEBEB';
+  const netSolo=netInc-ri.mF-acqMonthly-living-fixedExp-varExp;
+  const netShared=netInc-ri.mF-acqMonthly-coUserBurden-living-fixedExp-varExp;
+  const lc=netShared>=50?'var(--green)':netShared>=0?'var(--amber)':'var(--red)';
+  const lb=netShared>=50?'var(--green-bg)':netShared>=0?'var(--amber-bg)':'var(--red-bg)';
   $('living-section').innerHTML=`
-    <div class="two-col">
+    <div class="grid-2">
       <div>
-        <p style="font-size:12px;color:var(--color-text-tertiary);margin:0 0 6px;">동거인 부담 제외 기준</p>
-        <div class="rrow"><span class="rk">실수령</span><span class="cf-in">+${fmt(netInc)}</span></div>
-        <div class="rrow"><span class="rk">주담대</span><span class="cf-out">-${fmt(ri.mF)}</span></div>
-        <div class="rrow"><span class="rk">생활비 합계</span><span class="cf-out">-${fmt(living+fixedExp+varExp)}</span></div>
-        <div style="padding:8px 0;display:flex;justify-content:space-between;border-top:0.5px solid var(--color-border-secondary);margin-top:4px;">
-          <span style="font-size:13px;font-weight:500;">잉여</span>
-          <span style="font-size:15px;font-weight:500;color:${netSolo>=0?'#3B6D11':'#A32D2D'}">${(netSolo>=0?'+':'')+fmt(netSolo)}</span>
+        <p style="font-size:12px;color:var(--text-tertiary);font-weight:500;margin-bottom:8px;">동거인 부담 제외</p>
+        <div class="t-row"><span class="t-key">실수령</span><span class="t-val green">+${fmt(netInc)}</span></div>
+        <div class="t-row"><span class="t-key">주담대</span><span class="t-val red">-${fmt(ri.mF)}</span></div>
+        <div class="t-row"><span class="t-key">생활비 합계</span><span class="t-val red">-${fmt(living+fixedExp+varExp)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-light);margin-top:4px;">
+          <span style="font-weight:600;font-size:13px;">잉여</span>
+          <span style="font-size:16px;font-weight:700;color:${netSolo>=0?'var(--green)':'var(--red)'};">${(netSolo>=0?'+':'')+fmt(netSolo)}</span>
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#5B47D6;margin:0 0 6px;">동거인 분담(${Math.round(coShare*100)}%) 포함</p>
-        <div class="rrow"><span class="rk">실수령</span><span class="cf-in">+${fmt(netInc)}</span></div>
-        <div class="rrow"><span class="rk">주담대 + 분담금</span><span class="cf-out">-${fmt(ri.mF+coUserBurden)}</span></div>
-        <div class="rrow"><span class="rk">생활비 합계</span><span class="cf-out">-${fmt(living+fixedExp+varExp)}</span></div>
-        <div style="padding:8px 0;display:flex;justify-content:space-between;border-top:0.5px solid var(--color-border-secondary);margin-top:4px;">
-          <span style="font-size:13px;font-weight:500;">잉여</span>
-          <span style="font-size:15px;font-weight:500;color:${lc}">${(netShared>=0?'+':'')+fmt(netShared)}</span>
+        <p style="font-size:12px;color:var(--purple);font-weight:500;margin-bottom:8px;">동거인 분담(${Math.round(coShare*100)}%) 포함</p>
+        <div class="t-row"><span class="t-key">실수령</span><span class="t-val green">+${fmt(netInc)}</span></div>
+        <div class="t-row"><span class="t-key">주담대 + 분담금</span><span class="t-val red">-${fmt(ri.mF+coUserBurden)}</span></div>
+        <div class="t-row"><span class="t-key">생활비 합계</span><span class="t-val red">-${fmt(living+fixedExp+varExp)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-light);margin-top:4px;">
+          <span style="font-weight:600;font-size:13px;">잉여</span>
+          <span style="font-size:16px;font-weight:700;color:${lc};">${(netShared>=0?'+':'')+fmt(netShared)}</span>
         </div>
       </div>
     </div>
-    <div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:${lb};font-size:12px;color:${lc};font-weight:500;">동거인 분담 기준 — ${netShared>=50?'생활 가능':netShared>=0?'압박 수준':'위험 — 월 적자'}</div>`;
+    <div class="hl-box" style="background:${lb};color:${lc};margin-top:12px;">${netShared>=50?'생활 가능':netShared>=0?'압박 수준 — 비상금 적립 어려움':'위험 — 월 적자 발생'}</div>`;
 
   // liquidity
   const stressInc=Math.round(income*0.7);
-  const stressNetInc=Math.round(stressInc/12)-Math.round(calcIncomeTax(stressInc)/12)-Math.round(calcHealth(stressInc)/12)-Math.round(calcPension(stressInc)/12)-Math.round(calcEmploy(stressInc)/12);
-  const stressMPay=Math.round(mPay(actualLoan,rate+1.5,term)/10000);
-  const stressDef=Math.max(0,stressMPay+coUserBurden+living+fixedExp-stressNetInc);
+  const sNetInc=Math.round(stressInc/12)-Math.round(calcIncomeTax(stressInc)/12)-Math.round(calcHealth(stressInc)/12)-Math.round(calcPension(stressInc)/12)-Math.round(calcEmploy(stressInc)/12);
+  const sMPay=Math.round(mpayEq(actualLoan,rate+1.5,term)/10000);
+  const sDef=Math.max(0,sMPay+coUserBurden+living+fixedExp-sNetInc);
   const remCash=Math.max(0,r3);
-  const survM=stressDef>0?Math.floor(remCash/stressDef):999;
+  const survM=sDef>0?Math.floor(remCash/sDef):999;
   const sg=survM>=12?'안전':survM>=6?'주의':'위험';
-  const sc2=survM>=12?'#3B6D11':survM>=6?'#854F0B':'#A32D2D';
-  const sb2=survM>=12?'#EAF3DE':survM>=6?'#FAEEDA':'#FCEBEB';
+  const sc2=sg==='안전'?'var(--green)':sg==='주의'?'var(--amber)':'var(--red)';
+  const sb2=sg==='안전'?'var(--green-bg)':sg==='주의'?'var(--amber-bg)':'var(--red-bg)';
   $('liquidity-section').innerHTML=`
-    <p class="hint" style="margin-bottom:10px;">소득 30% 감소 + 금리 +1.5% 동시 가정</p>
-    <div class="mgrid" style="margin-bottom:10px;">
-      <div class="mc"><div class="ml">스트레스 실수령</div><div class="mv" style="color:#854F0B;">${fmt(stressNetInc)}/월</div></div>
-      <div class="mc"><div class="ml">스트레스 원리금</div><div class="mv" style="color:#854F0B;">${fmt(stressMPay)}/월</div></div>
-      <div class="mc"><div class="ml">월 부족액</div><div class="mv" style="color:${stressDef>0?'#A32D2D':'#3B6D11'}">${stressDef>0?fmt(stressDef):'흑자'}</div></div>
-      <div class="mc"><div class="ml">잔여 현금</div><div class="mv">${fmt(remCash)}</div></div>
+    <p class="hint" style="margin-bottom:12px;">소득 30% 감소 + 금리 +1.5% 동시 적용 스트레스 가정</p>
+    <div class="grid-4" style="margin-bottom:12px;">
+      <div class="metric-card"><div class="m-label">스트레스 실수령</div><div class="m-val" style="color:var(--amber);font-size:18px;">${fmt(sNetInc)}</div><div class="m-sub">/월</div></div>
+      <div class="metric-card"><div class="m-label">스트레스 원리금</div><div class="m-val" style="color:var(--amber);font-size:18px;">${fmt(sMPay)}</div><div class="m-sub">/월</div></div>
+      <div class="metric-card"><div class="m-label">월 부족액</div><div class="m-val" style="color:${sDef>0?'var(--red)':'var(--green)'};font-size:18px;">${sDef>0?fmt(sDef):'흑자'}</div></div>
+      <div class="metric-card"><div class="m-label">잔여 현금</div><div class="m-val" style="font-size:18px;">${fmt(remCash)}</div></div>
     </div>
-    <div style="padding:10px 14px;border-radius:8px;background:${sb2};display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-size:13px;font-weight:500;color:${sc2};">생존 가능 기간</span>
-      <span style="font-size:22px;font-weight:600;color:${sc2};">${survM>=999?'무한대':survM+'개월'}</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-radius:var(--radius-sm);background:${sb2};margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:600;color:${sc2};">버틸 수 있는 기간</span>
+      <span style="font-size:28px;font-weight:700;color:${sc2};">${survM>=999?'∞':survM+'개월'}</span>
     </div>
-    <div style="padding:8px 12px;border-radius:8px;background:${sb2};font-size:12px;color:${sc2};font-weight:500;">${sg} — ${survM>=12?'12개월 이상 안전':survM>=6?`${survM}개월 — 비상자금 보강 권장`:`6개월 미만 경고 — 소득 충격 시 채무불이행 위험`}</div>`;
+    <div class="hl-box" style="background:${sb2};color:${sc2};">${sg} — ${survM>=12?'12개월 이상 안전':survM>=6?`${survM}개월 — 비상자금 보강 권장`:`6개월 미만 경고 — 소득 충격 시 채무불이행 위험`}</div>`;
 
   // scenario
-  function sc3(pm,rd,label,col){
+  function scen(pm,rd,label,col){
     const sp=Math.round(price*pm),sr=rate+rd;
     const sl=Math.min(maxLoanDSR(income,dsr,sr,term),Math.round(sp*ltvPct/100));
     const sri=getRI(sl,sr,term,'equal-payment');
     const cf=netInc-sri.mF-coUserBurden-acqMonthly;
-    const netA=sp-sl;
-    return`<div class="scenario-col">
-      <div class="sh" style="color:${col};">${label}</div>
-      <div class="rrow" style="font-size:12px;"><span class="rk">주택가</span><span class="rv">${fmt(sp)}</span></div>
-      <div class="rrow" style="font-size:12px;"><span class="rk">금리</span><span class="rv">연 ${sr.toFixed(1)}%</span></div>
-      <div class="rrow" style="font-size:12px;"><span class="rk">대출</span><span class="rv">${fmt(sl)}</span></div>
-      <div class="rrow" style="font-size:12px;"><span class="rk">LTV</span><span class="rv">${sl>0?Math.round(sl/sp*100):0}%</span></div>
-      <div class="rrow" style="font-size:12px;"><span class="rk">순자산</span><span class="rv">${fmt(netA)}</span></div>
-      <div class="rrow" style="font-size:12px;border-bottom:none;"><span class="rk">월 순현금</span><span class="rv" style="color:${cf>=0?'#3B6D11':'#A32D2D'}">${(cf>=0?'+':'')+fmt(cf)}</span></div>
+    return`<div class="scenario-card">
+      <div class="scenario-head" style="color:${col};">${label}</div>
+      <div class="t-row"><span class="t-key">주택가</span><span class="t-val">${fmt(sp)}</span></div>
+      <div class="t-row"><span class="t-key">금리</span><span class="t-val">연 ${sr.toFixed(1)}%</span></div>
+      <div class="t-row"><span class="t-key">대출</span><span class="t-val">${fmt(sl)}</span></div>
+      <div class="t-row"><span class="t-key">LTV</span><span class="t-val">${sl>0?Math.round(sl/sp*100):0}%</span></div>
+      <div class="t-row"><span class="t-key">순자산</span><span class="t-val">${fmt(sp-sl)}</span></div>
+      <div class="t-row" style="border-bottom:none;"><span class="t-key">월 순현금</span><span class="t-val ${cf>=0?'green':'red'}">${(cf>=0?'+':'')+fmt(cf)}</span></div>
     </div>`;
   }
-  $('scenario-section').innerHTML=`<div class="three-col">
-    ${sc3(0.9,1.5,'① 보수 — 집값 -10%, 금리 +1.5%','#A32D2D')}
-    ${sc3(1,0,'② 중립 — 현 조건 유지','#185FA5')}
-    ${sc3(1.1,-1,'③ 낙관 — 집값 +10%, 금리 -1%','#3B6D11')}
-  </div>`;
+  $('scenario-section').innerHTML=scen(0.9,1.5,'① 보수 — 집값 -10%, 금리 +1.5%','var(--red)')
+    +scen(1,0,'② 중립 — 현 조건 유지','var(--blue)')
+    +scen(1.1,-1,'③ 낙관 — 집값 +10%, 금리 -1%','var(--green)');
 
   // decision
-  const fundOk=shortageW===0,fundCoOk=shortageC===0;
-  const lifeOk=netShared>=0,survOk=survM>=6,dsrOk=dg!=='위험',timingOk=r3>=0;
-  const structOk=hGrade!=='위험',riskOk=riskGrade!=='높음';
+  const fundOk=shortageW===0,fundCoOk=shortageC===0,lifeOk=netShared>=0;
+  const srvOk=survM>=6,dsrOk=dg!=='위험',timingOk=r3>=0,structOk=hg!=='위험',riskOk=rg!=='높음';
 
-  let verdict,vColor,vBg;
-  if(fundOk&&lifeOk&&survOk&&dsrOk&&timingOk){
-    verdict='독립적으로 매수 가능';vColor='#3B6D11';vBg='#EAF3DE';
-  } else if(fundCoOk&&lifeOk&&survOk&&dsrOk){
-    verdict='외부 자금 포함 시 조건부 가능';vColor='#854F0B';vBg='#FAEEDA';
-  } else {
-    verdict='외부 자금 포함해도 비권장';vColor='#A32D2D';vBg='#FCEBEB';
-  }
+  let verdict,vColor,vBg,vBorder;
+  if(fundOk&&lifeOk&&srvOk&&dsrOk&&timingOk){verdict='독립적으로 매수 가능';vColor='var(--green)';vBg='var(--green-light)';vBorder='#BBF7D0';}
+  else if(fundCoOk&&lifeOk&&srvOk&&dsrOk){verdict='외부 자금 포함 시 조건부 가능';vColor='var(--amber)';vBg='var(--amber-bg)';vBorder='#FDE68A';}
+  else{verdict='외부 자금 포함해도 비권장';vColor='var(--red)';vBg='var(--red-light)';vBorder='#FECACA';}
 
-  const checks=[
-    ['자금 조달 (본인)',fundOk],['자금 조달 (외부 포함)',fundCoOk],
-    ['집행 타이밍',timingOk],['DSR 안전',dsrOk],
-    ['생활 가능',lifeOk],['유동성',survOk],
-    ['구조 건전성',structOk],['외부자금 리스크',riskOk],
-  ];
+  const checks=[['자금조달(본인)',fundOk],['자금조달(포함)',fundCoOk],['집행타이밍',timingOk],['DSR 안전',dsrOk],['생활가능',lifeOk],['유동성',srvOk],['구조건전',structOk],['외부자금리스크',riskOk]];
   const conds=[];
   if(!fundOk)conds.push({t:`본인 자금 ${fmt(shortageW)} 부족`,g:'ng'});
-  if(!fundCoOk)conds.push({t:`동거인 자금 포함해도 ${fmt(shortageC)} 부족`,g:'ng'});
+  if(!fundCoOk)conds.push({t:`동거인 포함해도 ${fmt(shortageC)} 부족`,g:'ng'});
   if(!timingOk)conds.push({t:`잔금 단계 현금 ${fmt(-r3)} 부족`,g:'ng'});
-  if(!dsrOk)conds.push({t:`스트레스 DSR ${sDSR}% 위험 — 대출 ${fmt(Math.min(safeLoan,ltvLoan))} 이하로 축소 권장`,g:'warn'});
+  if(!dsrOk)conds.push({t:`스트레스 DSR ${sDSR}% — 대출 ${fmt(Math.min(safeLoan,ltvLoan))} 이하 축소 권장`,g:'warn'});
   if(!lifeOk)conds.push({t:`월 ${fmt(-netShared)} 생활비 적자`,g:'ng'});
-  if(!survOk)conds.push({t:`유동성 생존 ${survM}개월 미만 — 비상자금 ${fmt(stressDef*6)} 이상 확보`,g:'warn'});
-  if(!structOk)conds.push({t:`외부 자금 비중 ${extRatio}% 과다 — 자기자본 보강 필요`,g:'warn'});
-  if(!riskOk)conds.push({t:`동거인 외부 자금 리스크 높음 — 서면 약정 및 법적 정리 선행 필요`,g:'warn'});
+  if(!srvOk)conds.push({t:`유동성 생존 ${survM}개월 — 비상자금 ${fmt(sDef*6)} 이상 필요`,g:'warn'});
+  if(!structOk)conds.push({t:`외부 자금 비중 ${er}% 과다 — 자기자본 강화 필요`,g:'warn'});
+  if(!riskOk)conds.push({t:'동거인 외부 자금 리스크 높음 — 서면 약정 선행 필요',g:'warn'});
 
-  $('decision-top').innerHTML=`<div class="decision-box" style="background:${vBg};border-color:${vColor};margin-bottom:1.25rem;">
-    <div style="font-size:19px;font-weight:600;color:${vColor};margin-bottom:12px;">${verdict}</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">
-      ${checks.map(([l,ok])=>`<div style="text-align:center;font-size:11px;padding:6px 4px;border-radius:6px;background:${ok?'#EAF3DE':'#FCEBEB'};color:${ok?'#3B6D11':'#A32D2D'};font-weight:500;">${l}<br>${ok?'통과':'미달'}</div>`).join('')}
+  $('decision-top').innerHTML=`<div class="decision-box" style="background:${vBg};border-color:${vBorder};">
+    <div class="decision-verdict" style="color:${vColor};">${verdict}</div>
+    <div class="check-grid">
+      ${checks.map(([l,ok])=>`<div class="check-item ${ok?'check-pass':'check-fail'}">${l}<br>${ok?'통과':'미달'}</div>`).join('')}
     </div>
-    ${conds.length>0?`<div><p style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:0 0 6px;">필요 조건</p>${conds.map(c=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;"><span style="color:${c.g==='ng'?'#A32D2D':'#854F0B'};font-weight:500;">▸</span><span>${c.t}</span></div>`).join('')}</div>`:'<div style="font-size:12px;color:#3B6D11;margin-top:4px;">모든 기준 충족</div>'}
+    ${conds.length>0?`<div><div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">필요 조건</div>${conds.map(c=>`<div class="cond-item"><span class="cond-bullet" style="color:${c.g==='ng'?'var(--red)':'var(--amber)'};">▸</span><span>${c.t}</span></div>`).join('')}</div>`:`<div style="font-size:13px;color:var(--green);font-weight:500;">모든 기준 충족 — 매수 실행 가능합니다.</div>`}
   </div>`;
 }
 
@@ -680,3 +965,5 @@ function calc(){
 ['liq','term','repay-type','firsthome','acq-months','co-term','co-repay','co-type','co-share'].forEach(id=>$(id).addEventListener('change',calc));
 calc();
 </script>
+</body>
+</html>
